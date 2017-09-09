@@ -1,6 +1,6 @@
 #include <iostream>
 #include <queue>
-#include <map>
+#include <unordered_map>
 #include <cstdint>
 #include <gmpxx.h>
 #include <thread>
@@ -32,9 +32,27 @@ mpz_class FactTree(int n)
 	return ProdTree(2, n);
 }
 
-mpz_class factorial(mpz_class fact, int n)
+int increasePower(int number, int base)
 {
-    return fact * n;
+    int power = 1;
+    while ((number / base) % base == 0)
+        {
+            number /= base;
+            ++power;
+        }
+    return power;
+}
+
+int miniFact(int number, int power)
+{
+    int currentPower = 1;
+    int result = number;
+    while (currentPower < power)
+        {
+            result += number;
+            currentPower += increasePower(result, number);
+        }
+    return result;
 }
 
 uint64_t sum(int left, int right, int maxThread)
@@ -50,7 +68,7 @@ uint64_t sum(int left, int right, int maxThread)
             std::thread([&writeMutex, &threadCount, &que, &file](int left)
             {
                 int currentNumber = left;
-                std::map<int, int> multipliers;
+                std::unordered_map<int, int> multipliers;
                 int counter = 0;
                 for (int i = 2; i <= currentNumber; ++i)
                     {
@@ -59,45 +77,25 @@ uint64_t sum(int left, int right, int maxThread)
                                 ++counter;
                                 currentNumber /= i;
                             }
-                        multipliers.insert(std::pair<int,int>(i, counter));
-                        counter = 0;
-                    }
-                int multiplier = multipliers.rbegin()->first;
-                int count = multipliers.rbegin()->second;
-                int result;
-                if (count > multiplier)
-                    {
-                        count = multiplier - 1;
-                        result = multiplier * count;
-                    }
-                else
-                    {
-                        result = multiplier * count;
-                    }
-
-                bool recount = false;
-                if (FactTree(result) % left != 0)
-                    {   
-                        recount = true;
-                        writeMutex.lock();
-                        std::cout << "Error " << left << std::endl;
-                        writeMutex.unlock();
-                    }
-
-                if (recount)
-                    {
-                        counter = 1;
-                        mpz_class temp = 1;
-                        while(((temp = factorial(temp, counter)) % left) != 0)
+                        if (counter != 0)
                             {
-                                ++counter;
+                                multipliers.insert(std::pair<int,int>(i, counter));
+                                counter = 0;
                             }
-                        result = counter;
                     }
+
+                int result = 0;
+                for (auto it = multipliers.begin(); it != multipliers.end(); ++it)
+                    {
+                        int temp = miniFact(it->first, it->second);
+                        if (temp > result)
+                            {
+                                result = temp;
+                            }
+                    }
+
                 writeMutex.lock();
-                std::cout << left << ": " << result << std::endl;
                 file <<  left << ": " << result << std::endl;
-                file.flush();
                 que.push(result);
                 writeMutex.unlock();
                 --threadCount;
@@ -130,7 +128,7 @@ int main()
     int left;
     int right;
     int maxThread;
-    std::cout << "factorial: " << FactTree(20000) << std::endl;
+    std::cout << "factorial: " << FactTree(200000) << std::endl;
     std::cin >> left >> right >> maxThread;
     std::cout << sum(left, right, maxThread) << std::endl;
     return 0;
