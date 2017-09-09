@@ -1,0 +1,43 @@
+# Compiled source #
+###################
+*.dll
+*.exe
+*.o
+*.so
+*.obj
+*.idb
+*.pdb
+*.iobj
+*.ipdb
+task_1
+task_2
+task_3
+task_4
+task_5
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Vim files #
+#############
+*.swp
+*.swo
+
+# Logs and databases #
+######################
+*.log
+*.tlog
+*.sql
+*.sqlite
+*.db
+*.opendb
