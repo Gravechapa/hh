@@ -62,6 +62,14 @@ uint64_t sum(int left, int right, int maxThread)
     std::mutex writeMutex;
     std::atomic_int threadCount (0);
     std::queue<int> que;
+
+    if (left == 1)
+        {
+            file <<  1 << ": " << 1 << std::endl;
+            que.push(1);
+            ++left;
+        }
+
     for (; left <= right; ++left)
         {
             ++threadCount;
