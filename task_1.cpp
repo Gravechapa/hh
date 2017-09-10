@@ -63,11 +63,11 @@ uint64_t sum(int left, int right, int maxThread)
     std::atomic_int threadCount (0);
     std::queue<int> que;
 
-    if (left == 1)
+    if (left <= 1)
         {
             file <<  1 << ": " << 1 << std::endl;
             que.push(1);
-            ++left;
+            left = 2;
         }
 
     for (; left <= right; ++left)
